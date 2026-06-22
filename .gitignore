@@ -1,1 +1,5 @@
 flight_cache.sqlite
+venv/
+.env
+__pycache__/
+flight_cache.sqlite
