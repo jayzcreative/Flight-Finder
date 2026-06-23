@@ -47,6 +47,13 @@ while True:
     if destination_city:
         break
     print("City name cannot be empty.")
+
+while True:
+    trip_type = input("Trip type? (1=Round Trip, 2=One Way): ").strip() or "1"
+    if trip_type in ["1", "2"]:
+        break
+    print("Please enter 1 or 2.")
+
 while True:
     email = input('Enter your email: ').strip()
     if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
@@ -54,10 +61,26 @@ while True:
     print("Please enter a valid email address.")
 
 while True:
+    currency = input("Currency (default GBP): ").strip().upper() or "GBP"
+    if len(currency) == 3 and currency.isalpha():
+        break
+    print("Please enter a valid 3-letter currency code e.g GBP, USD, INR.")
+
+
+while True:
     try:
-        budget = float(input('Enter your budget in GBP: ').strip())
+        budget = float(input(f'Enter your budget in {currency}: ').strip())
         if budget <= 0:
             print("Budget must be greater than 0.")
+            continue
+        break
+    except ValueError:
+        print("Please enter a valid number.")
+while True:
+    try:
+        adults = int(input("Number of adults (default 1): ").strip() or "1")
+        if adults <= 0:
+            print("Must be at least 1 adult.")
             continue
         break
     except ValueError:
@@ -82,8 +105,12 @@ flights=flight_search.check_flights(
     origin_city_code=origin_code,
     destination_city_code=destination_code,
     from_time=tomorrow,
-    to_time=six_months_from_today,
-    is_direct=True
+    to_time=six_months_from_today if trip_type == "1" else None,
+    is_direct=True,
+    trip_type=trip_type,
+    currency=currency,
+    adults=adults 
+
 )
 cheapest=find_cheapest_flight(flights,six_months_from_today)
 
@@ -96,7 +123,10 @@ if cheapest.price == 'N/A':
         destination_city_code=destination_code,
         from_time=tomorrow,
         to_time=six_months_from_today,
-        is_direct=False
+        is_direct=False,
+        trip_type=trip_type,
+        currency=currency,
+        adults=adults 
     )
     cheapest = find_cheapest_flight(flights, six_months_from_today)
 
