@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import requests_cache
@@ -34,11 +35,33 @@ six_months_from_today = (datetime.now() + timedelta(days=180)).strftime('%Y-%m-%
 #-------------------USER INPUT-------------------#
 
 print('Welcome to Flight Finder!')
-origin_city = input('Enter the origin city: ').strip()
-destination_city = input('Enter the destination city: ').strip()
-email = input('Enter your email: ').strip()
-budget = float(input('Enter your budget in GBP: ').strip())
 
+while True:
+    origin_city = input('Enter the origin city: ').strip()
+    if origin_city:
+        break
+    print("City name cannot be empty.")
+
+while True:
+    destination_city = input('Enter the destination city: ').strip()
+    if destination_city:
+        break
+    print("City name cannot be empty.")
+while True:
+    email = input('Enter your email: ').strip()
+    if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+        break
+    print("Please enter a valid email address.")
+
+while True:
+    try:
+        budget = float(input('Enter your budget in GBP: ').strip())
+        if budget <= 0:
+            print("Budget must be greater than 0.")
+            continue
+        break
+    except ValueError:
+        print("Please enter a valid number.")
 #-------------------GET IATA CODES-------------------#
 
 print(f'Looking up airports for {origin_city} and {destination_city}...')
@@ -65,16 +88,17 @@ flights=flight_search.check_flights(
 cheapest=find_cheapest_flight(flights,six_months_from_today)
 
 #-------------------FALLBACK TO INDIRECT FLIGHTS-------------------#
-if cheapest.price=='N/A':
-    print(f'No direct flights found from {origin_city} to {destination_city} within your budget of GBP{budget}. Searching for indirect flights...')
-    flights=flight_search.check_flights(
-    origin_city_code=origin_code,
-    destination_city_code=destination_code,
-    from_time=tomorrow,
-    to_time=six_months_from_today,
-    is_direct=False
-)
-cheapest=find_cheapest_flight(flights,six_months_from_today)
+
+if cheapest.price == 'N/A':
+    print(f'No direct flights found. Searching indirect...')
+    flights = flight_search.check_flights(
+        origin_city_code=origin_code,
+        destination_city_code=destination_code,
+        from_time=tomorrow,
+        to_time=six_months_from_today,
+        is_direct=False
+    )
+    cheapest = find_cheapest_flight(flights, six_months_from_today)
 
 if cheapest.price=='N/A':
     print(f'Sorry, we could not find any flights from {origin_city} to {destination_city} within your budget of GBP{budget}. Please try again later or adjust your search criteria.')
@@ -106,8 +130,8 @@ if cheapest.price <= budget:
     notification_manager.send_emails(
         customer_emails=[email],
         price=cheapest.price,
-        departure_code=origin_code,
-        arrival_code=destination_code,
+        departure_code=cheapest.origin_airport,
+        arrival_code=cheapest.destination_airport,
         outbound_date=cheapest.out_date,
         inbound_date=cheapest.return_date,
         stops=cheapest.stops   

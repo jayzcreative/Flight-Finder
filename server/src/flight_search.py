@@ -31,7 +31,7 @@ class FlightSearch:
         if is_direct:
             flight_params['stops']='0'
 
-        response = requests.get(self.flight_endpoint, params=flight_params)
+        response = requests.get(self.flight_endpoint, params=flight_params,timeout=30)
         response.raise_for_status()
         return response.json()
     
@@ -44,7 +44,7 @@ class FlightSearch:
         }
 
         try:
-            response = requests.get(self.flight_endpoint, params=params)
+            response = requests.get(self.flight_endpoint, params=params,timeout=30)
             response.raise_for_status()
             data = response.json()
 

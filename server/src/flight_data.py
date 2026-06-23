@@ -24,6 +24,7 @@ def find_cheapest_flight(data, return_date):
         return_date="N/A",
         stops="N/A"
     )
+  
 
     for flight in all_flights:
         if "price" not in flight:
@@ -36,4 +37,8 @@ def find_cheapest_flight(data, return_date):
             cheapest_flight.destination_airport = flight["flights"][-1]["arrival_airport"]["id"]
             cheapest_flight.out_date = flight["flights"][0]["departure_airport"]["time"].split(" ")[0]
             cheapest_flight.return_date = return_date
+    if cheapest_flight.price == float('inf'):
+        return FlightData("N/A", "N/A", "N/A", "N/A", "N/A", "N/A")
     return cheapest_flight
+   
+        

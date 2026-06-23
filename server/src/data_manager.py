@@ -18,8 +18,9 @@ class DataManager:
         self.sheety_users_endpoint=os.getenv('SHEETY_ENDPOINT_USERS')
         self.sheety_searches_endpoint=os.getenv('SHEETY_ENDPOINT_SEARCHES')
     
-    """Method to get data from the Google Sheet on prices sheet."""
+    
     def get_data(self):
+        """Method to get data from the Google Sheet on prices sheet."""
         response = requests.get(self.sheety_endpoint, headers=self.sheety_headers)
         response.raise_for_status()
         self.data = response.json()
