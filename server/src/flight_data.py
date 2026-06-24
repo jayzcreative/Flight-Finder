@@ -10,7 +10,7 @@ class FlightData:
         self.stops=stops
 
 
-def find_cheapest_flight(data, return_date):
+def find_cheapest_flight(data, return_date,trip_type="1"):
     if data is None or ('best_flights' not in data and 'other_flights' not in data):
         return FlightData("N/A", "N/A", "N/A", "N/A", "N/A",'N/A')
 
@@ -21,7 +21,7 @@ def find_cheapest_flight(data, return_date):
         origin_airport="N/A",
         destination_airport="N/A",
         out_date="N/A",
-        return_date="N/A",
+        return_date="N/A", 
         stops="N/A"
     )
   
@@ -36,7 +36,7 @@ def find_cheapest_flight(data, return_date):
             cheapest_flight.stops=len(flight['flights'])-1
             cheapest_flight.destination_airport = flight["flights"][-1]["arrival_airport"]["id"]
             cheapest_flight.out_date = flight["flights"][0]["departure_airport"]["time"].split(" ")[0]
-            cheapest_flight.return_date = return_date
+            cheapest_flight.return_date = return_date if trip_type == "1" else "One way"
     if cheapest_flight.price == float('inf'):
         return FlightData("N/A", "N/A", "N/A", "N/A", "N/A", "N/A")
     return cheapest_flight
