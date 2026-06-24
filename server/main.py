@@ -29,8 +29,7 @@ data_manager = DataManager()
 flight_search = FlightSearch()
 
 
-tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-six_months_from_today = (datetime.now() + timedelta(days=180)).strftime('%Y-%m-%d')
+
 
 #-------------------USER INPUT-------------------#
 
@@ -85,6 +84,26 @@ while True:
         break
     except ValueError:
         print("Please enter a valid number.")
+while True:
+    print("Cabin class: 1=Economy, 2=Premium Economy, 3=Business, 4=First")
+    travel_class = input("Choose cabin class (default 1): ").strip() or "1"
+    if travel_class in ["1", "2", "3", "4"]:
+        break
+    print("Please enter 1, 2, 3 or 4.")
+while True:
+    try:
+        months_ahead = int(input("Search how many months ahead? (1-12, default 6): ").strip() or "6")
+        if 1 <= months_ahead <= 12:
+            break
+        print("Please enter a number between 1 and 12.")
+    except ValueError:
+        print("Please enter a valid number.")
+
+
+tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+end_date = (datetime.now() + timedelta(days=30 * months_ahead)).strftime('%Y-%m-%d')
+
+
 #-------------------GET IATA CODES-------------------#
 
 print(f'Looking up airports for {origin_city} and {destination_city}...')
@@ -100,41 +119,59 @@ print(f'{destination_city}→{destination_code}')
 
 
 #-------------------SEARCH DIRECT FLIGHTS-------------------#
-print(f'\nSearching for direct flights from {origin_city} to {destination_city} between {tomorrow} and {six_months_from_today} within your budget of GBP{budget}...')
-flights=flight_search.check_flights(
-    origin_city_code=origin_code,
-    destination_city_code=destination_code,
-    from_time=tomorrow,
-    to_time=six_months_from_today if trip_type == "1" else None,
-    is_direct=True,
-    trip_type=trip_type,
-    currency=currency,
-    adults=adults 
+print(f'\nSearching for direct flights from {origin_city} to {destination_city} between {tomorrow} and {end_date} within your budget of {currency}{budget}...')
+try:
+    flights=flight_search.check_flights(
+        origin_city_code=origin_code,
+        destination_city_code=destination_code,
+        from_time=tomorrow,
+        to_time=end_date if trip_type == "1" else None,
+        is_direct=True,
+        trip_type=trip_type,
+        currency=currency,
+        adults=adults ,
+        travel_class=travel_class
 
-)
-cheapest=find_cheapest_flight(flights,six_months_from_today)
-
+    )
+    
+    if flights is None:
+        print("Colud not retrieve flights.Please try again later.")
+        exit()
+    cheapest=find_cheapest_flight(flights,end_date)
+except Exception as e:
+    print(f"Unexpected error: {e}")
+    exit()
 #-------------------FALLBACK TO INDIRECT FLIGHTS-------------------#
 
 if cheapest.price == 'N/A':
     print(f'No direct flights found. Searching indirect...')
-    flights = flight_search.check_flights(
-        origin_city_code=origin_code,
-        destination_city_code=destination_code,
-        from_time=tomorrow,
-        to_time=six_months_from_today,
-        is_direct=False,
-        trip_type=trip_type,
-        currency=currency,
-        adults=adults 
-    )
-    cheapest = find_cheapest_flight(flights, six_months_from_today)
+    try:
+        flights = flight_search.check_flights(
+            origin_city_code=origin_code,
+            destination_city_code=destination_code,
+            from_time=tomorrow,
+            to_time=end_date if trip_type=='1' else None,
+            is_direct=False,
+            trip_type=trip_type,
+            currency=currency,
+            adults=adults,
+            travel_class=travel_class
+        )
+        
+        if flights is None:
+            print("Colud not retrieve flights.Please try again later.")
+            exit()
+        cheapest = find_cheapest_flight(flights, end_date)
+    
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        exit()
 
 if cheapest.price=='N/A':
-    print(f'Sorry, we could not find any flights from {origin_city} to {destination_city} within your budget of GBP{budget}. Please try again later or adjust your search criteria.')
+    print(f'Sorry, we could not find any flights from {origin_city} to {destination_city} within your budget of {currency}{budget}. Please try again later or adjust your search criteria.')
     exit()
 
-print(f'Cheapest flight found: GBP{cheapest.price} .')
+print(f'Cheapest flight found: {currency}{cheapest.price} .')
 print(f'From {cheapest.origin_airport}  → To: {cheapest.destination_airport}.')
 print(f'Outbound date: {cheapest.out_date} | Return date    : {cheapest.return_date}.')
 print(f'Stops: {cheapest.stops}.')
@@ -156,7 +193,7 @@ print("\n✅ Search saved to sheet!")
 
 #-------------------SEND NOTIFICATION-------------------#
 if cheapest.price <= budget:
-    print(f'\n🎉 Great news! We found a flight from {origin_city} to {destination_city} for GBP{cheapest.price}, which is within your budget of GBP{budget}. Sending you an email notification now...')
+    print(f'\n🎉 Great news! We found a flight from {origin_city} to {destination_city} for {currency}{cheapest.price}, which is within your budget of {currency}{budget}. Sending you an email notification now...')
     notification_manager.send_emails(
         customer_emails=[email],
         price=cheapest.price,
@@ -164,10 +201,11 @@ if cheapest.price <= budget:
         arrival_code=cheapest.destination_airport,
         outbound_date=cheapest.out_date,
         inbound_date=cheapest.return_date,
-        stops=cheapest.stops   
+        stops=cheapest.stops,
+        currency=currency
     )
     print('📧 Email sent!')
 
 else:
-    print(f"\n⚠️  Cheapest price GBP {cheapest.price} is above your budget of GBP {budget}.")
+    print(f"\n⚠️  Cheapest price {currency} {cheapest.price} is above your budget of {currency} {budget}.")
     print("No email sent but search is saved.")
