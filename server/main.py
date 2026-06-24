@@ -137,7 +137,7 @@ try:
     if flights is None:
         print("Colud not retrieve flights.Please try again later.")
         exit()
-    cheapest=find_cheapest_flight(flights,end_date)
+    cheapest=find_cheapest_flight(flights,end_date,trip_type=trip_type)
 except Exception as e:
     print(f"Unexpected error: {e}")
     exit()
@@ -161,7 +161,7 @@ if cheapest.price == 'N/A':
         if flights is None:
             print("Colud not retrieve flights.Please try again later.")
             exit()
-        cheapest = find_cheapest_flight(flights, end_date)
+        cheapest = find_cheapest_flight(flights, end_date,trip_type=trip_type)
     
     except Exception as e:
         print(f"Unexpected error: {e}")
