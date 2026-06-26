@@ -74,11 +74,11 @@ class DataManager:
            return None
        
        except requests.exceptions.RequestException as e:
-           print(f"Netroek error updating price: {e}")
+           print(f"Network error updating price: {e}")
            return None
         
     
-    def post_search_result(self,email,origin,destination,origin_code,destination_code,price,outbound,inbound,stops):
+    def post_search_result(self,email,origin,destination,origin_code,destination_code,price,outbound,inbound,stops,stop_airports):
         """Method to post a new search result to the Google Sheet searches sheet."""
         payload={
             'search':{
@@ -90,7 +90,8 @@ class DataManager:
                 'price':price,
                 'outbound':outbound,
                 'inbound':inbound,
-                'stops':stops
+                'stops':stops,
+                'stopAirports':','.join(stop_airports) if stop_airports else 'N/A'
             }
         }
 

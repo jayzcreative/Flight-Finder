@@ -174,7 +174,11 @@ if cheapest.price=='N/A':
 print(f'Cheapest flight found: {currency}{cheapest.price} .')
 print(f'From {cheapest.origin_airport}  → To: {cheapest.destination_airport}.')
 print(f'Outbound date: {cheapest.out_date} | Return date    : {cheapest.return_date}.')
-print(f'Stops: {cheapest.stops}.')
+
+if cheapest.stops==0:
+    print('Direct flight - no stops')
+else:
+    print(f"Stops: {cheapest.stops} → via  {','.join(cheapest.stop_airports)}.")
 
 
 #-------------------SAVE TO SEARCHES SHEET-------------------#
@@ -187,7 +191,8 @@ data_manager.post_search_result(
     price=cheapest.price,
     outbound=cheapest.out_date,
     inbound=cheapest.return_date,
-    stops=cheapest.stops
+    stops=cheapest.stops,
+    stop_airports=cheapest.stop_airports
 )
 print("\n✅ Search saved to sheet!")
 
@@ -202,6 +207,7 @@ if cheapest.price <= budget:
         outbound_date=cheapest.out_date,
         inbound_date=cheapest.return_date,
         stops=cheapest.stops,
+        stop_airports=cheapest.stop_airports,
         currency=currency
     )
     print('📧 Email sent!')

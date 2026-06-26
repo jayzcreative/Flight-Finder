@@ -15,14 +15,17 @@ class NotificationManager:
    
     
 
-   def send_emails(self,customer_emails,price,departure_code,arrival_code,outbound_date,inbound_date,stops,currency="GBP"):
+   def send_emails(self,customer_emails,price,departure_code,arrival_code,
+                   outbound_date,inbound_date,stops,currency="GBP",stop_airports=None):
       
       try:
+
+         stops_info="Direct" if stops==0 else f"via {','.join(stop_airports or [])}"
       
          message=(
          f"Low price alert: Only {currency}{price} to fly from {departure_code} to {arrival_code}.\n"
          f"From {outbound_date} to {inbound_date}.\n"
-         f"Stops: {stops}"
+         f"Stops: {stops_info}"
          )
          with smtplib.SMTP('smtp.gmail.com',587) as connection:
             connection.starttls()

@@ -1,13 +1,15 @@
 class FlightData:
     """This class is responsible for structuring the flight data."""
 
-    def __init__(self, price, origin_airport, destination_airport, out_date, return_date,stops):
+    def __init__(self, price, origin_airport, destination_airport, out_date, 
+                 return_date,stops,stop_airports=None):
         self.price = price
         self.origin_airport = origin_airport
         self.destination_airport = destination_airport
         self.out_date = out_date
         self.return_date = return_date
         self.stops=stops
+        self.stop_airports=stop_airports or []
 
 
 def find_cheapest_flight(data, return_date,trip_type="1"):
@@ -37,8 +39,10 @@ def find_cheapest_flight(data, return_date,trip_type="1"):
             cheapest_flight.destination_airport = flight["flights"][-1]["arrival_airport"]["id"]
             cheapest_flight.out_date = flight["flights"][0]["departure_airport"]["time"].split(" ")[0]
             cheapest_flight.return_date = return_date if trip_type == "1" else "One way"
+            cheapest_flight.stop_airports=[leg['arrival_airport']['id']
+                                           for leg in flight['flights'][:-1]]
     if cheapest_flight.price == float('inf'):
-        return FlightData("N/A", "N/A", "N/A", "N/A", "N/A", "N/A")
+        return FlightData("N/A", "N/A", "N/A", "N/A", "N/A", "N/A",[])
     return cheapest_flight
    
         
