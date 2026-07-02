@@ -1,77 +1,303 @@
-# Flight Finder
+# Flight Finder 🛫
 
-Flight Finder is a Python-based flight deal tracker that monitors flight prices for a list of destinations stored in Google Sheets. It queries flight data through SerpAPI (Google Flights), updates the lowest price in Sheety, and notifies subscribers when a better fare is found.
+A full-stack flight deal tracker that searches for cheap flights and notifies users via SMS/email. Built with Python backend and React frontend, powered by Amadeus & Sheety APIs.
+
+![Python](https://img.shields.io/badge/Python-91.6%25-blue)
+![JavaScript](https://img.shields.io/badge/JavaScript-React-yellow)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ## Features
 
-- Search for cheap flights from a fixed origin to multiple destinations
-- Try direct flights first, then fall back to indirect options
-- Compare the latest fare against the stored lowest price
-- Update destination pricing in Google Sheets via Sheety
-- Send email alerts to subscribed users
-- Use environment-based configuration for API keys and endpoints
-
-## Project Structure
-
-```text
-server/
-  main.py                # Main workflow for fetching and processing flight deals
-  requirements.txt       # Python dependencies
-  src/
-    data_manager.py      # Reads and updates Google Sheet data via Sheety
-    flight_data.py       # Formats and selects the cheapest flight option
-    flight_search.py     # Calls the flight search API
-    notification_manager.py  # Sends notifications via email/Twilio
-```
+- 🔍 **Smart Flight Search**: Search for cheap flights from a fixed origin to multiple destinations
+- 🔄 **Fallback Options**: Try direct flights first, then fall back to indirect options
+- 💰 **Price Comparison**: Compare the latest fare against the stored lowest price
+- 📊 **Data Management**: Update destination pricing in Google Sheets via Sheety
+- 📧 **Multi-Channel Alerts**: Send notifications via email and SMS (Twilio)
+- ⚙️ **Environment Configuration**: Secure API keys and endpoints using `.env`
+- 🎨 **Modern UI**: React + Vite frontend for easy flight browsing
+- 🚀 **REST API**: Flask-based API for seamless integration
 
 ## Tech Stack
 
-- Python
-- Requests and requests-cache
-- python-dotenv
-- Sheety for Google Sheets integration
-- SerpAPI for flight search data
-- Twilio and SMTP for notifications
+### Backend
+- **Python 3.8+**
+- **Flask** - RESTful API framework
+- **Requests & requests-cache** - HTTP client with caching
+- **python-dotenv** - Environment variable management
+- **Sheety** - Google Sheets integration
+- **Amadeus API** - Flight search data
+- **Twilio** - SMS notifications
+- **SMTP** - Email notifications
 
-## Setup
+### Frontend
+- **React 18** - UI framework
+- **Vite** - Build tool & dev server
+- **JavaScript/JSX** - Component development
 
-1. Clone the repository
-2. Create and activate a virtual environment
-3. Install dependencies:
+## Project Structure
 
-```bash
-pip install -r server/requirements.txt
+```
+Flight-Finder/
+├── README.md                          # Main documentation
+├── .gitignore                         # Git ignore rules
+│
+├── server/                            # Python backend
+│   ├── main.py                        # Main flight search workflow
+│   ├── api.py                         # Flask REST API endpoints
+│   ├── requirements.txt               # Python dependencies
+│   ├── .env                           # Environment variables (⚠️ keep secret)
+│   │
+│   ├── src/                           # Source modules
+│   │   ├── data_manager.py            # Google Sheets management via Sheety
+│   │   ├── flight_data.py             # Flight data formatting & selection
+│   │   ├── flight_search.py           # Amadeus API integration
+│   │   └── notification_manager.py    # Email/SMS notification handler
+│   │
+│   └── venv/                          # Python virtual environment (ignored)
+│
+└── client/                            # React frontend
+    ├── README.md                      # Client-specific documentation
+    ├── package.json                   # Node dependencies
+    ├── package-lock.json              # Dependency lock file
+    ├── vite.config.js                 # Vite configuration
+    ├── eslint.config.js               # Linting rules
+    ├── jsconfig.json                  # JavaScript configuration
+    ├── components.json                # UI component registry
+    ├── index.html                     # HTML entry point
+    ├── .gitignore                     # Client git ignore
+    │
+    ├── public/                        # Static assets
+    │   └── [favicon, images, etc.]
+    │
+    └── src/                           # React components & logic
+        ├── components/                # Reusable UI components
+        ├── pages/                     # Page components
+        ├── hooks/                     # Custom React hooks
+        ├── utils/                     # Utility functions
+        ├── App.jsx                    # Main App component
+        └── main.jsx                   # React entry point
 ```
 
-4. Create a `.env` file inside the `server` directory with the following variables:
+## Installation
 
-```env
-SERPAPI_KEY=your_serpapi_key
-SERPAPI_ENDPOINT=https://serpapi.com/search.json
-SHEETY_TOKEN=your_sheety_basic_auth_token
-SHEETY_ENDPOINT=https://api.sheety.co/your-sheet-id/prices
-SHEETY_ENDPOINT_USERS=https://api.sheety.co/your-sheet-id/users
-TWILIO_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-SMTP_EMAIL=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
-```
+### Prerequisites
+- Python 3.8 or higher
+- Node.js 16 or higher
+- npm or yarn package manager
 
-5. Run the app:
+### Backend Setup
 
-```bash
-python server/main.py
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/jayzcreative/Flight-Finder.git
+   cd Flight-Finder
+   ```
+
+2. **Create and activate virtual environment**
+   ```bash
+   cd server
+   python -m venv venv
+   
+   # On macOS/Linux
+   source venv/bin/activate
+   
+   # On Windows
+   venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables**
+   
+   Create a `.env` file in the `server` directory:
+   ```env
+   # Amadeus API Configuration
+   AMADEUS_API_KEY=your_amadeus_api_key
+   AMADEUS_API_SECRET=your_amadeus_api_secret
+   AMADEUS_ENDPOINT=https://test.api.amadeus.com
+
+   # Sheety Configuration
+   SHEETY_TOKEN=your_sheety_basic_auth_token
+   SHEETY_ENDPOINT=https://api.sheety.co/your-sheet-id/prices
+   SHEETY_ENDPOINT_USERS=https://api.sheety.co/your-sheet-id/users
+
+   # Twilio Configuration
+   TWILIO_SID=your_twilio_sid
+   TWILIO_AUTH_TOKEN=your_twilio_auth_token
+   TWILIO_FROM_NUMBER=+1234567890
+
+   # Email Configuration
+   SMTP_EMAIL=your_email@gmail.com
+   SMTP_PASSWORD=your_app_password
+
+   # Origin Airport (IATA code)
+   ORIGIN_AIRPORT=LHR
+   ```
+
+5. **Run the application**
+   ```bash
+   # Run the main flight search workflow
+   python main.py
+   
+   # Or start the Flask API server
+   python api.py
+   ```
+
+### Frontend Setup
+
+1. **Navigate to client directory**
+   ```bash
+   cd ../client
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+   The client will be available at `http://localhost:5173`
+
+4. **Build for production**
+   ```bash
+   npm run build
+   ```
 
 ## How It Works
 
-1. The app reads destination and price threshold data from Sheety.
-2. It searches for flights from London (LHR) to each destination for a date range starting tomorrow.
-3. It identifies the cheapest available option.
-4. If the fare is lower than the current saved threshold, it updates the sheet and sends a notification.
+### Flight Search Workflow (main.py)
+1. Reads destination and price threshold data from Sheety
+2. Searches for flights from your origin (e.g., LHR) to each destination
+3. Identifies the cheapest available option
+4. If fare is lower than the saved threshold:
+   - Updates the sheet with the new price
+   - Sends a notification to subscribed users
 
-## Notes
+### REST API (api.py)
+Provides endpoints for:
+- Fetching available flights
+- Updating destination watches
+- Managing user preferences
+- Checking flight status
 
-- The current implementation is configured for a fixed origin airport (`LHR`).
-- The script uses a cache for API requests to reduce repeated lookups.
-- If you want to customize alert delivery, update the notification logic in `server/src/notification_manager.py`.
+## Configuration
+
+### API Keys Required
+
+1. **Amadeus API** - Get from [amadeus.com](https://www.amadeus.com)
+   - Provides flight search data
+   - Free tier available for testing
+
+2. **Sheety** - Get from [sheety.co](https://sheety.co)
+   - Connects to your Google Sheet
+   - Stores destinations and prices
+
+3. **Twilio** - Get from [twilio.com](https://www.twilio.com)
+   - Send SMS notifications
+   - Free trial with credits
+
+4. **Gmail** - Use your Gmail account
+   - Generate [App Password](https://myaccount.google.com/apppasswords) for SMTP
+
+## Usage Examples
+
+### Search Flights via API
+```bash
+curl http://localhost:5000/api/flights?destination=CDG&days=30
+```
+
+### Watch Flight Prices
+The frontend allows users to:
+- Set up destination watches
+- Define price thresholds
+- Choose notification preferences
+- View price history
+
+## Customization
+
+### Change Origin Airport
+Update `ORIGIN_AIRPORT` in `.env`:
+```env
+ORIGIN_AIRPORT=JFK  # Instead of LHR
+```
+
+### Modify Notification Logic
+Edit `server/src/notification_manager.py` to customize alerts
+
+### Style the Frontend
+Update CSS/components in `client/src/` for custom branding
+
+## Security Notes
+
+- ⚠️ **Never commit `.env` file** to version control
+- Add `.env` to `.gitignore` (already done)
+- Use strong API keys and tokens
+- Rotate credentials periodically
+- Don't share `.env` details in public repositories
+
+## Troubleshooting
+
+### "ModuleNotFoundError: No module named 'flask'"
+```bash
+# Ensure virtual environment is activated
+pip install -r server/requirements.txt
+```
+
+### API connection errors
+- Verify `.env` configuration is correct
+- Check API credentials and endpoints
+- Ensure internet connectivity
+
+### Frontend not connecting to backend
+- Verify Flask API is running (`python server/api.py`)
+- Check CORS configuration in `api.py`
+- Confirm API URL matches in frontend code
+
+## Development Workflow
+
+1. **Backend development**: Edit files in `server/src/`
+2. **Frontend development**: Edit files in `client/src/`
+3. **Test changes locally** before committing
+4. **Push to main** when ready for production
+
+## Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to your branch
+5. Submit a pull request
+
+## Future Enhancements
+
+- [ ] Multi-origin airport support
+- [ ] Advanced filtering (stops, airlines, duration)
+- [ ] Price trend analytics
+- [ ] Mobile app (React Native)
+- [ ] Webhook integrations
+- [ ] Dark mode UI
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For issues, questions, or suggestions:
+- Open a [GitHub Issue](https://github.com/jayzcreative/Flight-Finder/issues)
+- Check [existing discussions](https://github.com/jayzcreative/Flight-Finder/discussions)
+
+## Disclaimer
+
+This project is for educational purposes. Flight prices and availability are subject to change. Always verify prices on official airline websites before booking.
+
+---
+
+Made with ❤️ by [jayzcreative](https://github.com/jayzcreative)
