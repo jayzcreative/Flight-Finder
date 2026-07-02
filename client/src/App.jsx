@@ -1,7 +1,7 @@
-import Landing from "@/pages/Landing"
+import Home from "@/pages/Home"
 
 function App() {
-  return <Landing />
+  return <Home />
 }
 
 export default App
