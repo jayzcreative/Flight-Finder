@@ -12,7 +12,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173"],  # Vite dev server
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -27,20 +27,26 @@ CLASS_MAP = {"economy": "1", "premium": "2", "business": "3", "first": "4"}
 SEARCH_WINDOW_DAYS = 30  # always search the next month automatically — no longer user-configurable
 
 
+class StatusRequest(BaseModel):
+    flightNumber: str
+    date: str
+
+
+@app.post("/api/status")
+def get_status(req: StatusRequest):
+    status = flight_search.get_flight_status(req.flightNumber, req.date)
+    return {"status": status}
+
+
 class SearchRequest(BaseModel):
     origin: str
     destination: str
-    tripType: str
+    tripType: str      # "round" | "oneway"
     budget: float
     currency: str
     email: str
     adults: int = 1
     travelClass: str = "economy"
-
-
-class StatusRequest(BaseModel):
-    flightNumber: str
-    date: str
 
 
 @app.post("/api/search")
@@ -121,18 +127,12 @@ def search_flights(req: SearchRequest):
             "airlineLogo": cheapest.airline_logo,
             "flightNumber": cheapest.flight_number,
             "aircraft": cheapest.aircraft,
-            "status": None,
+            "status": None,  # not available from this API — use /api/status separately
             "price": cheapest.price,
             "currency": req.currency,
-            "departDate": cheapest.out_date,     # full departure datetime
-            "returnDate": cheapest.return_date,  # full arrival datetime of that flight
+            "departDate": cheapest.out_date,
+            "returnDate": cheapest.return_date,
             "stops": cheapest.stops,
             "stopAirports": cheapest.stop_airports,
         }
     }
-
-
-@app.post("/api/status")
-def get_status(req: StatusRequest):
-    status = flight_search.get_flight_status(req.flightNumber, req.date)
-    return {"status": status}

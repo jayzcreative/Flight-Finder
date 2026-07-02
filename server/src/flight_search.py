@@ -1,3 +1,4 @@
+from datetime import date
 import os
 from dotenv import load_dotenv
 import requests
@@ -81,3 +82,27 @@ class FlightSearch:
             print(f"Error fetching IATA code for {city_name}: {e}")
 
         return "N/A"
+    
+    def get_flight_status(self, flight_number, date):
+        """Method to get live status for a specific flight number and date via Google Search."""
+        params = {
+            "engine": "google",
+            "q": f"{flight_number} flight status {date}",
+            "api_key": self.serpapi_key,
+        }
+        try:
+            response = requests.get(self.flight_endpoint, params=params, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+            flight_result = data.get("flight_result")
+            if not flight_result:
+                return None
+            # take the entry matching the requested date, else first available
+            for entry in flight_result.get("dates", []):
+                if entry.get("date") == date:
+                    return entry.get("metadata", {}).get("status")
+            dates = flight_result.get("dates", [])
+            return dates[0].get("metadata", {}).get("status") if dates else None
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching flight status: {e}")
+            return None
